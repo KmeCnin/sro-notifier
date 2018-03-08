@@ -1,8 +1,9 @@
-import urllib
+import urllib.parse
+import urllib.request
 import json
 import re
 import time
-import httplib
+import http.client
 from bs4 import BeautifulSoup
 
 domain = 'https://www.m3stat.com'
@@ -29,11 +30,11 @@ def loadKill(unique):
     return None
 
 def msg(msg):
-    conn = httplib.HTTPSConnection('hooks.slack.com')
+    conn = http.client.HTTPSConnection('hooks.slack.com')
     conn.request(
         'POST',
         '/services/T0B0Z6SKB/B9L0J4848/C7uDdHncmIXZ2QE6Tys2hJPy',
-        urllib.urlencode({'payload': json.dumps({'text': msg})}),
+        urllib.parse.urlencode({'payload': json.dumps({'text': msg})}),
         {"Content-type": "application/x-www-form-urlencoded"}
     )
     response = conn.getresponse()
@@ -44,7 +45,7 @@ def msg(msg):
 
 def updateKills():
     dataKills = BeautifulSoup(
-        urllib.urlopen(domain+'/uniques/'+server).read(),
+        urllib.request.urlopen(domain+'/uniques/'+server).read(),
         'html.parser'
     )
     kills = []
