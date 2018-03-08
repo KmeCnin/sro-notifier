@@ -1,0 +1,54 @@
+[
+    {
+        "player": "Pierre",
+        "slack": "pierre",
+        "chars": [
+            {
+                "name": "KmeCnin",
+                "job": "Janken"
+            },
+            {
+                "name": "MoshiMoshi",
+                "job": null
+            }
+        ]
+    },
+    {
+        "player": "Victorien",
+        "slack": "victorien",
+        "chars": [
+            {
+                "name": "Diabetique",
+                "job": "Insuline"
+            },
+            {
+                "name": "_Diabetique_",
+                "job": "_Insuline_"
+            },
+            {
+                "name": "Twig",
+                "job": "LeGrosFragile"
+            }
+        ]
+    },
+    {
+        "player": "Julien",
+        "slack": "egotrip",
+        "chars": [
+            {
+                "name": null,
+                "job": null
+            }
+        ]
+    },
+    {
+        "player": "Yohann",
+        "slack": "gastro-fortuite",
+        "chars": [
+            {
+                "name": null,
+                "job": null
+            }
+        ]
+    }
+]

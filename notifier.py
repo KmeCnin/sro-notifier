@@ -4,10 +4,13 @@ import json
 import re
 import time
 import http.client
+import os
 from bs4 import BeautifulSoup
 
 domain = 'https://www.m3stat.com'
 server = 'Palmyra'
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def ts(string):
     m = re.search('(\d+)d, (\d+)h, (\d+)m', string)
@@ -18,11 +21,11 @@ def ts(string):
     return int(time.time()) - int(elapsed)
 
 def saveKills(kills):
-    with open('kills.json', 'w') as file:
-        json.dump(kills, file)
+    with open(dir_path+'/kills.json', 'w') as file:
+        json.dump(kills, file, False, True, True, True, None, 4)
 
 def loadKill(unique):
-    with open('kills.json', 'r') as file:
+    with open(dir_path+'/kills.json', 'r') as file:
         kills = json.load(file)
     for kill in kills:
         if kill['unique'] == unique:
@@ -39,18 +42,22 @@ def msg(msg):
     )
     response = conn.getresponse()
     conn.close()
-    print(msg)
+    # print(msg)
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
 
 def updateKills():
     dataKills = BeautifulSoup(
         urllib.request.urlopen(domain+'/uniques/'+server).read(),
-        'html.parser'
+        'lxml'
     )
     kills = []
+    foo = 0
     for tr in dataKills.select('[name=last_kills] > table > tbody > tr'):
-        if not tr.has_attr('id'):
+        # print(tr)
+            # foo = foo+1
+            # print(foo)
+        if not tr.has_attr('style'):
             tds = tr.select('td')
             unique = tds[0].get_text()[2:]
             oldKill = loadKill(unique)
@@ -60,7 +67,7 @@ def updateKills():
                 'timestamp': ts(tds[2].get_text()),
             }
             kills.append(newKill)
-            if oldKill == None or oldKill['timestamp'] > newKill['timestamp']+60:
+            if oldKill == None or oldKill['timestamp'] > (newKill['timestamp']+60):
                 if newKill['player'] == '(Spawned)':
                     msg(newKill['unique']+' has appeared!')
                 else:
