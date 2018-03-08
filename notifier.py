@@ -39,7 +39,7 @@ def msg(msg):
     )
     response = conn.getresponse()
     conn.close()
-    print msg
+    print(msg)
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
 
