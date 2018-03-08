@@ -1,9 +1,8 @@
-import urllib2
+import urllib
 import json
 import re
 import time
 import httplib
-import urllib
 from bs4 import BeautifulSoup
 
 domain = 'https://www.m3stat.com'
@@ -45,7 +44,7 @@ def msg(msg):
 
 def updateKills():
     dataKills = BeautifulSoup(
-        urllib2.urlopen(domain+'/uniques/'+server).read(),
+        urllib.urlopen(domain+'/uniques/'+server).read(),
         'html.parser'
     )
     kills = []
