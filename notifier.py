@@ -10,10 +10,9 @@ from bs4 import BeautifulSoup
 from bs4.diagnose import diagnose
 from datetime import timezone
 
-domain = 'https://www.m3stat.com'
-server = 'Palmyra'
-
 dir_path = os.path.dirname(os.path.realpath(__file__))
+with open(dir_path+'/config.json', 'r') as cf:
+    config = json.load(cf)
 
 def ts(string):
     m = re.search('(\d+)d, (\d+)h, (\d+)m', string)
@@ -51,7 +50,7 @@ def msg(msg):
     conn = http.client.HTTPSConnection('hooks.slack.com')
     conn.request(
         'POST',
-        '/services/T0B0Z6SKB/B9L0J4848/C7uDdHncmIXZ2QE6Tys2hJPy',
+        config['webhook'],
         urllib.parse.urlencode({'payload': json.dumps({'text': msg})}),
         {"Content-type": "application/x-www-form-urlencoded"}
     )
@@ -63,10 +62,8 @@ def msg(msg):
 
 def updateKills():
     dataKills = BeautifulSoup(
-        urllib.request.urlopen(domain+'/uniques/'+server).read(),
+        urllib.request.urlopen('https://www.m3stat.com/uniques/'+config['server']).read(),
         'html.parser'
-        # 'lxml'
-        # 'html5lib'
     )
 
     kills = []
@@ -84,7 +81,7 @@ def updateKills():
             }
             kills.append(newKill)
             if oldKill == None or (
-                (oldKill['timestamp']+60) > newKill['timestamp']
+                (oldKill['timestamp']+60) < newKill['timestamp']
             ):
                 if newKill['player'] == '(Spawned)':
                     msg('*'+newKill['unique']+'* est apparu !')
