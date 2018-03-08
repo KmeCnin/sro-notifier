@@ -42,7 +42,7 @@ def msg(msg):
     )
     response = conn.getresponse()
     conn.close()
-    # print(msg)
+    print(msg)
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
 
@@ -54,9 +54,6 @@ def updateKills():
     kills = []
     foo = 0
     for tr in dataKills.select('[name=last_kills] > table > tbody > tr'):
-        # print(tr)
-            # foo = foo+1
-            # print(foo)
         if not tr.has_attr('style'):
             tds = tr.select('td')
             unique = tds[0].get_text()[2:]
