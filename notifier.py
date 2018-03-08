@@ -25,8 +25,13 @@ def saveKills(kills):
         json.dump(kills, file, False, True, True, True, None, 4)
 
 def loadKill(unique):
-    with open(dir_path+'/kills.json', 'r') as file:
+    try:
+        file = open(dir_path+'/kills.json', 'r')
         kills = json.load(file)
+    except:
+        file = open(dir_path+'/kills.json', 'w+')
+        kills = []
+        json.dump(kills, file)
     for kill in kills:
         if kill['unique'] == unique:
             return kill

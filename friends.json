@@ -46,7 +46,11 @@
         "slack": "gastro-fortuite",
         "chars": [
             {
-                "name": null,
+                "name": "___Samael___",
+                "job": "___Leamas___"
+            },
+            {
+                "name": "___Death___",
                 "job": null
             }
         ]
