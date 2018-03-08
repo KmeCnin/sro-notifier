@@ -3,9 +3,12 @@ import urllib.request
 import json
 import re
 import time
+import datetime
 import http.client
 import os
 from bs4 import BeautifulSoup
+from bs4.diagnose import diagnose
+from datetime import timezone
 
 domain = 'https://www.m3stat.com'
 server = 'Palmyra'
@@ -18,7 +21,14 @@ def ts(string):
     h = int(m.group(2)) * 60 * 60
     m = int(m.group(3)) * 60
     elapsed = d + h + m
-    return int(time.time()) - int(elapsed)
+    ts = int(time.time()) - int(elapsed)
+    dt = datetime.datetime.fromtimestamp(ts)
+    dt -= datetime.timedelta(
+        minutes=0,
+        seconds=dt.second,
+        microseconds=dt.microsecond
+    )
+    return int(dt.replace(tzinfo=timezone.utc).timestamp())
 
 def saveKills(kills):
     with open(dir_path+'/kills.json', 'w') as file:
@@ -54,26 +64,32 @@ def msg(msg):
 def updateKills():
     dataKills = BeautifulSoup(
         urllib.request.urlopen(domain+'/uniques/'+server).read(),
-        'lxml'
+        'html.parser'
+        # 'lxml'
+        # 'html5lib'
     )
+
     kills = []
-    foo = 0
-    for tr in dataKills.select('[name=last_kills] > table > tbody > tr'):
+    for tr in dataKills.find('div', {'name': 'last_kills'}).table.tbody.find_all('tr', {}, False):
         if not tr.has_attr('style'):
-            tds = tr.select('td')
+            tds = tr.find_all('td', {}, False)
             unique = tds[0].get_text()[2:]
             oldKill = loadKill(unique)
+            t = ts(tds[2].get_text())
             newKill = {
                 'unique': unique,
                 'player': tds[1].get_text(),
-                'timestamp': ts(tds[2].get_text()),
+                'timestamp': t,
+                'date': datetime.datetime.fromtimestamp(t).strftime('%Y-%m-%d %H:%M:%S'),
             }
             kills.append(newKill)
-            if oldKill == None or oldKill['timestamp'] > (newKill['timestamp']+60):
+            if oldKill == None or (
+                (oldKill['timestamp']+60) > newKill['timestamp']
+            ):
                 if newKill['player'] == '(Spawned)':
-                    msg(newKill['unique']+' has appeared!')
+                    msg('*'+newKill['unique']+'* est apparu !')
                 else:
-                    msg(newKill['player']+' killed '+newKill['unique'])
+                    msg('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*')
     saveKills(kills)
 
 updateKills()
