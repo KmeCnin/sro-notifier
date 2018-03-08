@@ -51,21 +51,19 @@ def updateKills():
     kills = []
     for tr in dataKills.select('[name=last_kills] > table > tbody > tr'):
         if not tr.has_attr('id'):
-            unique = tr.select_one('td:nth-of-type(1)').get_text()[2:]
+            tds = tr.select('td')
+            unique = tds[0].get_text()[2:]
             oldKill = loadKill(unique)
             newKill = {
                 'unique': unique,
-                'player': tr.select_one('td:nth-of-type(2)').get_text(),
-                'timestamp': ts(tr.select_one('td:nth-of-type(3)').get_text()),
+                'player': tds[1].get_text(),
+                'timestamp': ts(tds[2].get_text()),
             }
             kills.append(newKill)
             if oldKill == None or oldKill['timestamp'] > newKill['timestamp']+60:
-                # Kill has been updated
                 if newKill['player'] == '(Spawned)':
-                    # New spawn
                     msg(newKill['unique']+' has appeared!')
                 else:
-                    # New kill
                     msg(newKill['player']+' killed '+newKill['unique'])
     saveKills(kills)
 
