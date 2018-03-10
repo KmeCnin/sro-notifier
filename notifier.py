@@ -30,15 +30,15 @@ def ts(string):
     return int(dt.replace(tzinfo=timezone.utc).timestamp())
 
 def saveKills(kills):
-    with open(dir_path+'/kills.json', 'w') as file:
+    with open(dir_path+'/database/kills.json', 'w') as file:
         json.dump(kills, file, False, True, True, True, None, 4)
 
 def loadKill(unique):
     try:
-        file = open(dir_path+'/kills.json', 'r')
+        file = open(dir_path+'/database/kills.json', 'r')
         kills = json.load(file)
     except:
-        file = open(dir_path+'/kills.json', 'w+')
+        file = open(dir_path+'/database/kills.json', 'w+')
         kills = []
         json.dump(kills, file)
     for kill in kills:
@@ -46,11 +46,15 @@ def loadKill(unique):
             return kill
     return None
 
-def msg(msg):
+def loadFriends():
+    with open(dir_path+'/friends.json', 'r') as file:
+        return json.load(file)
+
+def msg(msg, webhook):
     conn = http.client.HTTPSConnection('hooks.slack.com')
     conn.request(
         'POST',
-        config['webhook'],
+        webhook,
         urllib.parse.urlencode({'payload': json.dumps({'text': msg})}),
         {"Content-type": "application/x-www-form-urlencoded"}
     )
@@ -59,6 +63,20 @@ def msg(msg):
     print(msg)
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
+
+def notif(msg):
+    msg(msg, config['webhook-sro-notifier'])
+
+def private(msg):
+    msg(msg, config['webhook-sro'])
+
+def isFriend(target):
+    friends = loadFriends()
+    for friend in friends:
+        for char in friend['chars']:
+            if char['name'] == target or char['job'] == target
+                return friend
+    return False
 
 def updateKills():
     dataKills = BeautifulSoup(
@@ -84,9 +102,15 @@ def updateKills():
                 (oldKill['timestamp']+60) < newKill['timestamp']
             ):
                 if newKill['player'] == '(Spawned)':
-                    msg('*'+newKill['unique']+'* est apparu !')
+                    notif('*'+newKill['unique']+'* est apparu !')
                 else:
-                    msg('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*')
+                    notif('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*')
+
+                # Friends
+                friend = isFriend(newKill['player'])
+                if friend != False
+                    private('@'+friend['slack']+' a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'`')
+
     saveKills(kills)
 
 updateKills()
