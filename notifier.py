@@ -64,17 +64,11 @@ def msg(msg, webhook):
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
 
-def notif(msg):
-    msg(msg, config['webhook-sro-notifier'])
-
-def private(msg):
-    msg(msg, config['webhook-sro'])
-
 def isFriend(target):
     friends = loadFriends()
     for friend in friends:
         for char in friend['chars']:
-            if char['name'] == target or char['job'] == target
+            if char['name'] == target or char['job'] == target:
                 return friend
     return False
 
@@ -102,14 +96,14 @@ def updateKills():
                 (oldKill['timestamp']+60) < newKill['timestamp']
             ):
                 if newKill['player'] == '(Spawned)':
-                    notif('*'+newKill['unique']+'* est apparu !')
+                    msg('*'+newKill['unique']+'* est apparu !', config['webhook-sro-notifier'])
                 else:
-                    notif('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*')
+                    msg('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*', config['webhook-sro-notifier'])
 
                 # Friends
                 friend = isFriend(newKill['player'])
-                if friend != False
-                    private('@'+friend['slack']+' a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'`')
+                if friend != False:
+                    msg('<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'` !', config['webhook-sro'])
 
     saveKills(kills)
 
