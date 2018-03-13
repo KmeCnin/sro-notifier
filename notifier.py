@@ -67,39 +67,26 @@ def loadFriends():
     with open(dir_path+'/friends.json', 'r') as file:
         return json.load(file)
 
-def msg(msg, webhook, image = None):
+def msg(msg, webhook):
     conn = http.client.HTTPSConnection('hooks.slack.com')
-    messageObject = {
-        'text': msg
-    }
-    if image is not None:
-        messageObject = {
-            'text': msg,
-            'attachments': [
-                {
-                    "title": "Lieux d'apparition",
-                    'image_url': image
-                }
-            ]
-        }
     conn.request(
         'POST',
         webhook,
-        urllib.parse.urlencode({'payload': json.dumps(messageObject)}),
+        urllib.parse.urlencode({'payload': json.dumps(msg)}),
         {"Content-type": "application/x-www-form-urlencoded"}
     )
     response = conn.getresponse()
     conn.close()
-    print(msg)
+    print(msg['text'])
     if response.status != 200:
         raise Exception('Error '+str(response.status)+': '+response.reason)
 
-def uniquePicture(target):
+def loadUnique(target):
     with open(dir_path+'/uniques.json', 'r') as file:
         uniques = json.load(file)
     for unique in uniques:
         if unique['name'] == target:
-            return unique['spawn']
+            return unique
     return None
 
 def isFriend(target):
@@ -134,14 +121,47 @@ def updateKills():
                 (oldKill['timestamp']+60) < newKill['timestamp']
             ):
                 if newKill['player'] == '(Spawned)':
-                    msg('*'+newKill['unique']+'* est apparu !', config['webhook-sro-notifier'], uniquePicture(newKill['unique']))
+                    image = loadUnique(newKill['unique'])
+                    if image is not None:
+                        image = image['spawn']
+                    msg(
+                        {
+                            'text': '*'+newKill['unique']+'* est apparu !',
+                            'attachments': [
+                                {
+                                    "title": "Lieux d'apparition",
+                                    'image_url': image
+                                }
+                            ]
+                        },
+                        config['webhook-sro-notifier']
+                    )
                 else:
-                    msg('`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*', config['webhook-sro-notifier'])
+                    msg(
+                        {
+                            'text': '`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*'
+                        },
+                        config['webhook-sro-notifier']
+                    )
 
                 # Friends
                 friend = isFriend(newKill['player'])
                 if friend != False:
-                    msg('<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'` !', config['webhook-sro'])
+                    image = loadUnique(newKill['unique'])
+                    if image is not None:
+                        image = image['wallpaper']
+                    msg(
+                        {
+                            'text': '<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'` !',
+                            'attachments': [
+                                {
+                                    "title": "Gratz!",
+                                    'image_url': image
+                                }
+                            ]
+                        },
+                        config['webhook-sro']
+                    )
 
     saveKills(kills)
 
@@ -169,7 +189,12 @@ def updateChars():
             if oldLevel is None:
                 continue
             if oldLevel < newLevel:
-                msg('<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec *'+char['name']+'* !', config['webhook-sro'])
+                msg(
+                    {
+                        'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec *'+char['name']+'* !'
+                    },
+                    config['webhook-sro']
+                )
 
     saveChars(chars)
 
