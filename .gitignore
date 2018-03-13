@@ -1,4 +1,5 @@
 .vscode
-database
+database/chars.json
+database/kills.json
 get-pip.py
 config.json
