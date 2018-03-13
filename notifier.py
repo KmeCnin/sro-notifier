@@ -191,7 +191,7 @@ def updateChars():
             if oldLevel < newLevel:
                 msg(
                     {
-                        'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec *'+char['name']+'* !'
+                        'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec `'+char['name']+'` !'
                     },
                     config['webhook-sro']
                 )
