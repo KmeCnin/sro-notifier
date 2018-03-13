@@ -33,6 +33,10 @@ def saveKills(kills):
     with open(dir_path+'/database/kills.json', 'w') as file:
         json.dump(kills, file, False, True, True, True, None, 4)
 
+def saveChars(chars):
+    with open(dir_path+'/database/chars.json', 'w') as file:
+        json.dump(chars, file, False, True, True, True, None, 4)
+
 def loadKill(unique):
     try:
         file = open(dir_path+'/database/kills.json', 'r')
@@ -44,6 +48,19 @@ def loadKill(unique):
     for kill in kills:
         if kill['unique'] == unique:
             return kill
+    return None
+
+def loadChar(char):
+    try:
+        file = open(dir_path+'/database/chars.json', 'r')
+        chars = json.load(file)
+    except:
+        file = open(dir_path+'/database/chars.json', 'w+')
+        chars = []
+        json.dump(chars, file)
+    for charData in chars:
+        if charData['char'] == char:
+            return charData
     return None
 
 def loadFriends():
@@ -107,4 +124,33 @@ def updateKills():
 
     saveKills(kills)
 
+def updateChars():
+    friends = loadFriends()
+    chars = []
+    for friend in friends:
+        for char in friend['chars']:
+            dataChar = BeautifulSoup(
+                urllib.request.urlopen('https://www.m3stat.com/players/'+config['server']+'/'+char['name']).read(),
+                'html.parser'
+            )
+            charData = loadChar(char['name'])
+            oldLevel = None
+            if charData is not None:
+                oldLevel = charData['level']
+            m = re.search('(\d+)\sLevel', dataChar.find('h4').get_text())
+            if m is None:
+                continue
+            newLevel = int(m.group(1))
+            chars.append({
+                'char': char['name'],
+                'level': newLevel,
+            })
+            if oldLevel is None:
+                continue
+            if oldLevel < newLevel:
+                msg('<@'+friend['slack']+'> est maintenant niveau *'+newLevel+' * avec *'+char['name']+'* !', config['webhook-sro'])
+
+    saveChars(chars)
+
 updateKills()
+updateChars()

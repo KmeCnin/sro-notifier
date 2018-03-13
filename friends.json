@@ -10,6 +10,10 @@
             {
                 "name": "MoshiMoshi",
                 "job": null
+            },
+            {
+                "name": "_Starvation_",
+                "job": "Salad"
             }
         ]
     },
@@ -28,6 +32,10 @@
             {
                 "name": "Twig",
                 "job": "LeGrosFragile"
+            },
+            {
+                "name": "_Pestilence_",
+                "job": "LeGrosFragile"
             }
         ]
     },
@@ -36,8 +44,16 @@
         "slack": "U121JSF3R",
         "chars": [
             {
-                "name": "Jolicoeur",
+                "name": "Ego",
+                "job": "__Vicious__"
+            },
+            {
+                "name": "_Egotrip_",
                 "job": null
+            },
+            {
+                "name": "__Conquest__",
+                "job": "T0mato"
             }
         ]
     },
