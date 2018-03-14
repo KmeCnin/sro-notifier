@@ -1,15 +1,21 @@
-import manager
+import urllib.parse
+import urllib.request
+import re
+from bs4 import BeautifulSoup
+
+from src import config
+from src import manager
 
 def update():
+    cf = config.Config()
     chars = manager.Chars()
-    friends = manager.Friends()
-    for friend in friends:
+    for friend in manager.Friends().list:
         for char in friend['chars']:
             dataChar = BeautifulSoup(
-                urllib.request.urlopen('https://www.m3stat.com/players/'+config['server']+'/'+char['name']).read(),
+                urllib.request.urlopen('https://www.m3stat.com/players/'+cf.get('server')+'/'+char['name']).read(),
                 'html.parser'
             )
-            charData = loadChar(char['name'])
+            charData = chars.findByName(char['name'])
             oldLevel = None
             if charData is not None:
                 oldLevel = charData['level']
@@ -18,17 +24,16 @@ def update():
                 continue
             newLevel = int(m.group(1))
             chars.push({
-                'char': char['name'],
+                'name': char['name'],
                 'level': newLevel,
             })
             if oldLevel is None:
                 continue
             if oldLevel < newLevel:
-                msg(
+                publisher.publishPrivate(
                     {
                         'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec `'+char['name']+'` !'
-                    },
-                    config['webhook-sro']
+                    }
                 )
 
     chars.persist()

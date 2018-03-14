@@ -1,15 +1,26 @@
 import urllib.parse
 import urllib.request
-import manager
+import re
+import time
+import datetime
+from datetime import timezone
+from bs4 import BeautifulSoup
+
+from src import config
+from src import manager
+from src import publisher as p
 
 def update():
+    cf = config.Config()
     dataKills = BeautifulSoup(
-        urllib.request.urlopen('https://www.m3stat.com/uniques/'+config['server']).read(),
+        urllib.request.urlopen('https://www.m3stat.com/uniques/'+cf.get('server')).read(),
         'html.parser'
     )
 
     kills = manager.Kills()
     friends = manager.Friends()
+    uniques = manager.Uniques()
+    publisher = p.Publisher()
     for tr in dataKills.find('div', {'name': 'last_kills'}).table.tbody.find_all('tr', {}, False):
         if not tr.has_attr('style'):
             tds = tr.find_all('td', {}, False)
@@ -27,10 +38,10 @@ def update():
                 (oldKill['timestamp']+60) < newKill['timestamp']
             ):
                 if newKill['player'] == '(Spawned)':
-                    image = loadUnique(newKill['unique'])
+                    image = uniques.findByName(newKill['unique'])
                     if image is not None:
                         image = image['spawn']
-                    msg(
+                    publisher.publishPublic(
                         {
                             'text': '*'+newKill['unique']+'* est apparu !',
                             'attachments': [
@@ -39,24 +50,22 @@ def update():
                                     'image_url': image
                                 }
                             ]
-                        },
-                        config['webhook-sro-notifier']
+                        }
                     )
                 else:
-                    msg(
+                    publisher.publishPublic(
                         {
                             'text': '`'+newKill['player']+'` a éliminé *'+newKill['unique']+'*'
-                        },
-                        config['webhook-sro-notifier']
+                        }
                     )
 
                 # Friends
-                friend = friends.findByName(newKill['player'])
+                friend = friends.findByChar(newKill['player'])
                 if friend != None:
-                    image = loadUnique(newKill['unique'])
+                    image = uniques.findByName(newKill['unique'])
                     if image is not None:
                         image = image['wallpaper']
-                    msg(
+                    publisher.publishPrivate(
                         {
                             'text': '<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'` !',
                             'attachments': [
@@ -65,8 +74,7 @@ def update():
                                     'image_url': image
                                 }
                             ]
-                        },
-                        config['webhook-sro']
+                        }
                     )
 
     kills.persist()
