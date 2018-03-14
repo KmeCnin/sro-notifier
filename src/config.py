@@ -12,7 +12,7 @@ class Config:
         return self.conf[attr]
 
     def databasePath(self):
-        return self.dir+'/database/'
+        return self.dir+'database/'
 
     def configPath(self):
-        return self.dir+'/config/'
+        return self.dir+'config/'
