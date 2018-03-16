@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 
 from src import config
 from src import manager
+from src import publisher
 
 def update():
     cf = config.Config()
@@ -30,7 +31,7 @@ def update():
             if oldLevel is None:
                 continue
             if oldLevel < newLevel:
-                publisher.publishPrivate(
+                publisher.Publisher().publishPrivate(
                     {
                         'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec `'+char['name']+'` !'
                     }
