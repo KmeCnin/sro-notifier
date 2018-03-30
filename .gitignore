@@ -3,3 +3,5 @@ database/chars.json
 database/kills.json
 get-pip.py
 config.json
+src/__pycache__
+__pycache__

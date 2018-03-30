@@ -65,13 +65,15 @@ def update():
                     image = uniques.findByName(newKill['unique'])
                     if image is not None:
                         image = image['wallpaper']
+                    link = 'https://www.m3stat.com/players/Palmyra/'+newKill['player']
+
                     publisher.publishPrivate(
                         {
-                            'text': '<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec `'+newKill['player']+'` !',
+                            'text': '<@'+friend['slack']+'> a éliminé *'+newKill['unique']+'* avec <'+link+'|'+newKill['player']+'> !',
                             'attachments': [
                                 {
                                     "title": "Gratz!",
-                                    'image_url': image
+                                    "image_url": image,
                                 }
                             ]
                         }

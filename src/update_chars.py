@@ -31,9 +31,10 @@ def update():
             if oldLevel is None:
                 continue
             if oldLevel < newLevel:
+                link = 'https://www.m3stat.com/players/Palmyra/'+char['name']
                 publisher.Publisher().publishPrivate(
                     {
-                        'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec `'+char['name']+'` !'
+                        'text': '<@'+friend['slack']+'> est maintenant niveau *'+str(newLevel)+' * avec <'+link+'|'+char['name']+'> !'
                     }
                 )
 

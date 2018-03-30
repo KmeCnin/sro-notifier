@@ -28,7 +28,9 @@ class Publisher:
             raise Exception('Error '+str(response.status)+': '+response.reason)
 
     def publishPublic(self, msg):
+        # Disable sro-notifer channel posting.
         # self.publish(self.publicWebhook, msg)
+        return
 
     def publishPrivate(self, msg):
         self.publish(self.privateWebhook, msg)
