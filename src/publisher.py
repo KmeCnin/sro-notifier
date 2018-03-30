@@ -28,7 +28,7 @@ class Publisher:
             raise Exception('Error '+str(response.status)+': '+response.reason)
 
     def publishPublic(self, msg):
-        self.publish(self.publicWebhook, msg)
+        # self.publish(self.publicWebhook, msg)
 
     def publishPrivate(self, msg):
         self.publish(self.privateWebhook, msg)
