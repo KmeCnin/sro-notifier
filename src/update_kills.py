@@ -65,7 +65,22 @@ def update():
                     image = uniques.findByName(newKill['unique'])
                     if image is not None:
                         image = image['wallpaper']
-                    link = 'https://www.m3stat.com/players/Palmyra/'+newKill['player']
+                    link = 'https://www.m3stat.com/players/'+cf.get('server')+'/'+newKill['player']
+
+                    dataPlayer = BeautifulSoup(
+                        urllib.request.urlopen(link).read(),
+                        'html.parser'
+                    )
+                    killStats = []
+                    for tr in dataPlayer.select('.col-sm-offset-4 tr'):
+                        tds = tr.find_all('td', {}, False)
+                        unique2 = tds[0].get_text()
+                        kills2 = tds[1].get_text()
+                        killStats.append({
+                            "title": unique2,
+                            "value": kills2,
+                            "short": "true"
+                        })
 
                     publisher.publishPrivate(
                         {
@@ -74,6 +89,9 @@ def update():
                                 {
                                     "title": "Gratz!",
                                     "image_url": image,
+                                },
+                                {
+                                    "fields": killStats,
                                 }
                             ]
                         }
